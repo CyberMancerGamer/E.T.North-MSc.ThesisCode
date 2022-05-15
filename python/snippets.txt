@@ -1,0 +1,918 @@
+Unless otherwise stated were all figures made in the main-section of plot.py
+
+About subplots: https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html#
+About rcParams: https://matplotlib.org/stable/tutorials/introductory/customizing.html#the-default-matplotlibrc-file
+rcParams:
+  plt.rcParams.update({
+    "font.family": "Arial",
+    "font.size": 21, # Changes font size. 19 for normal plots. 21 for large figures
+    "figure.figsize": "12.8, 9.6",  # figure size in inches. This is twice as large as normal (6.4, 4.8)
+    "lines.markersize": 12, # marker size, in points. 6 standard. 9 for QCM
+    "figure.constrained_layout.use": True,
+    "xtick.direction": "in",
+    "ytick.direction": "in",
+    "xtick.top": True,
+    "xtick.bottom": True,
+    "xtick.minor.visible": True,
+    "ytick.left": True,
+    "ytick.right": True,
+    "ytick.minor.visible": True,
+    "xtick.major.size": 14, # major tick size in points (3.5 default)
+    "xtick.minor.size": 8, # minor tick size in points (2 default)
+    "ytick.major.size": 14, # major tick size in points (3.5 default)
+    "ytick.minor.size": 8 # minor tick size in points (2 default)
+  })
+
+XRD of film_vs_Tdep:
+  Yb2Qz3:
+    XRDfiles = ["ETN4063_Yb2Qz3_175C.xy", "ETN4067_Yb2Qz3_200C.xy", "ETN4065_Yb2Qz3_225C.xy", "ETN4068_Yb2Qz3_250C.xy", "ETN4066_Yb2Qz3_275C.xy", "ETN4064_Yb2Qz3_300C.xy"]
+  YbF3:
+    XRDfiles = ["ETN4051_YbF3_175C.xy", "ETN4048_YbF3_200C.xy", "ETN4052_YbF3_225C.xy", "ETN4053_YbF3_250C.xy", "ETN4049_YbF3_275C.xy", "ETN4047_YbF3_300C.xy"]
+
+    plt.text(23.80, 0.295+0.03, "YbF$\mathregular{_3}$(011)", rotation=-90, horizontalalignment="center")
+    plt.text(24.70, 0.295+0.03, "YbF$\mathregular{_3}$(101)", rotation=-90, horizontalalignment="center")
+    plt.text(26.18, 0.295+0.03, "YbF$\mathregular{_3}$(020)", rotation=-90, horizontalalignment="center")
+    plt.text(27.85, 0.295+0.03, "YbF$\mathregular{_3}$(111)", rotation=-90, horizontalalignment="center")
+    plt.text(30.65, 0.260+0.03, "*", horizontalalignment="center")
+    plt.text(31.85, 0.295+0.03, "YbF$\mathregular{_3}$(210)", rotation=-90, horizontalalignment="center")
+    plt.text(32.81, 0.726+0.03, "Si(200)", rotation=-90, horizontalalignment="center")
+    plt.text(36.20, 0.295+0.03, "YbF$\mathregular{_3}$(121)", rotation=-90, horizontalalignment="center")
+  IN MAIN:
+    XRDfiles = []
+    XRDlabels = ["175 °C","200 °C","225 °C","250 °C","275 °C","300 °C"]
+    colors = uio_cmp(np.linspace(0, 1, len(XRDfiles)))
+
+    for i, file in enumerate(XRDfiles):
+        x, y = (read_XRD("../data/XRD/" + file))
+        y = y / np.amax(y)
+        plt.plot(x, y+0.05*i, color=colors[i], label= XRDlabels[i])
+
+    #plt.title("XRD of Yb$_2$Qz$_3$ vs. T$_{dep}$")
+    plt.xlabel("2θ [°]")
+    plt.ylabel("Intensity [a.u.]")
+    plt.xlim(left=5, right=40)
+    plt.tick_params(labelleft=False)
+    plt.legend()
+    plt.show() # Shows the figure
+
+PL of QzLn:
+  IN MAIN:
+    PLfiles = ["ETNL2_Qz-AlCl3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-04-31-740.txt",
+    "ETNL7_Qz-Alacac3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-13-36-726.txt",
+    "ETNL3_Qz-YCl3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-06-16-744.txt",
+    "ETNL1_Qz_PL_365nm_435LPF_500ms_10avg_Subt2__1__16-02-11-754.txt",
+    "ETNL5_Qz-Ythd3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-09-46-736.txt",
+    "ETNL4_Qz-Ndthd3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-08-01-740.txt",
+    "ETNL6_Qz-Ybthd3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-11-36-731.txt"]
+    PLlabels = ["Qz + AlCl$\mathregular{_3}$",
+    "Qz + Al(acac)$\mathregular{_3}$",
+    "Qz + YCl$\mathregular{_3}$·6H$\mathregular{_2}$O",
+    "Qz",
+    "Qz + Y(thd)$\mathregular{_3}$",
+    "Qz + Nd(thd)$\mathregular{_3}$",
+    "Qz + Yb(thd)$\mathregular{_3}$"]
+    colors = uio_cmp(np.linspace(0, 1, len(PLfiles)))
+    xdata = []
+    ydata = []
+
+    for i, file in enumerate(PLfiles):
+      x, y = (read_OpticsLab("../data/Optics Lab/" + file))
+      x = np.array(x) # Converts to array
+      y = np.array(y) # Converts to array
+      for i, val in enumerate(y):
+          if val < 0: # If negative values are found set them to zero
+              y[i] = 0
+      xdata.append(x)
+      ydata.append(y)
+
+    AlCl3max = np.amax(ydata[0]) # Maximum value of AlCl3 fluorecence (since that is most intense)
+    for i, val in enumerate(ydata):
+      maxval = round(np.amax(ydata[i])) # Gives max value
+      maxindex = np.argmax(ydata[i]) # Gives index of max value
+      #ydata[i] = val/AlCl3max # Sets y-data to relative intensity of AlCl3
+      ydata[i] -= 2000*i # Shifts down plots to show all
+      plt.plot(xdata[i][246:1689], ydata[i][246:1689], color=colors[i], label=PLlabels[i]) # 300 -> 900 nm
+      if maxval>500:
+          plt.text(xdata[i][maxindex], ydata[i][maxindex], PLlabels[i] + ": " + str(maxval) + " counts", color=colors[i])
+      elif "Nd" in PLfiles[i]:
+          plt.text(300, ydata[i][maxindex], PLlabels[i] + ": " + str(maxval) + " counts", color=colors[i]) # Nd(thd)3
+      else:
+          plt.text(300, ydata[i][maxindex], PLlabels[i] + ": " + str(maxval) + " counts", color=colors[i]) # Yb(thd)3
+
+
+    plt.xlabel("Wavelength [nm]")
+    #plt.ylabel("Relative Intensity [a.u.]")
+    plt.tick_params(labelleft=False)
+    #plt.legend()
+    plt.show() # Shows the figure
+
+GPC of YbF3 vs. Tdep:
+  IN MAIN:
+    SE_IN  = np.array([54.5, 34.6, 23.3, 21.8, 27.8, 40.7])/100 # 1000 cycles and 0.1 nm = 1 Å
+    SE_MID = np.array([51.0, 31.7, 21.6, 18.4, 18.3, 35.1])/100
+    SE_OUT = np.array([55.1, 27.4, 22.7, 16.4, 18.2, 27.1])/100
+    XRR = np.array([54.5, 17.6, 26.3])/100
+    SE_T =  [175, 200, 225, 250, 275, 300]
+    XRR_T = [175, 225, 300]
+    colors = uio_cmp(np.linspace(0, 1, 4))
+    SE_avg = (SE_IN+SE_MID+SE_OUT) / 3
+    avg = np.array([(SE_avg[0]+XRR[0])/2, SE_avg[1], (SE_avg[2]+XRR[1])/2, SE_avg[3], SE_avg[4], (SE_avg[5]+XRR[2])/2])
+
+    plt.plot(*np.polynomial.polynomial.Polynomial.fit(SE_T,avg, deg=2).linspace(), "--", color="k")
+
+    plt.plot(SE_T, SE_IN, markers[0], color=colors[0], label= "SE Inlet")
+    plt.plot(SE_T, SE_MID, markers[1], color=colors[1], label= "SE Middle")
+    plt.plot(SE_T, SE_OUT, markers[2], color=colors[2], label= "SE Outlet")
+    plt.plot(XRR_T, XRR, markers[3], color=colors[3], label= "XRR")
+
+    plt.xlabel("Deposition temperature [°C]")
+    plt.ylabel("GPC [Å]")
+    plt.legend()
+    plt.ylim(bottom=0)
+    plt.show() # Shows the figure
+
+Roughness of YbF3 vs. Tdep:
+  IN MAIN:
+    SE_IN  = np.array([0.8, 2.3, 4.0, 24.2, 30.0, 22.0])
+    SE_OUT = np.array([1.2, 0.0, 0.0, 20.2, 22.5, 29.5])
+    XRR = np.array([1.5, 2.3, 3.9])
+    AFM_IN = np.array([0.4, 2.9, 1.0, 5.2])
+    AFM_OUT = np.array([0.3, 1.1, 1.1, 5.4])
+    SE_T =  [175, 200, 225, 250, 275, 300]
+    XRR_T = [175, 225, 300]
+    AFM_T = [175, 200, 250, 300]
+    colors = uio_cmp(np.linspace(0, 1, 5))
+
+    plt.plot(SE_T, SE_IN, markers[0], color=colors[0], label= "SE Inlet")
+    plt.plot(SE_T, SE_OUT, markers[1], color=colors[1], label= "SE Outlet")
+    plt.plot(XRR_T, XRR, markers[2], color=colors[2], label= "XRR")
+    plt.plot(AFM_T, AFM_IN, markers[3], color=colors[3], label= "AFM Inlet")
+    plt.plot(AFM_T, AFM_OUT, markers[4], color=colors[4], label= "AFM Outlet")
+
+    plt.xlabel("Deposition temperature [°C]")
+    plt.ylabel("Roughness [nm]")
+    plt.legend()
+    plt.show() # Shows the figure
+
+GPC of Yb2Qz3 vs. Tdep:
+  IN rcParams:
+    "lines.markersize": 12, # marker size, in points. 6 standard. 9 for QCM
+  IN MAIN:
+    SE_IN  = np.array([104.75, 77.31, 60.22, 51.10, 43.32, 34.19])/100 # 1000 cycles and 0.1 nm = 1 Å
+    SE_MID = np.array([95.29, 74.66, 67.69, 48.99, 40.69, 31.62])/100
+    SE_OUT = np.array([91.07, 70.70, 56.45, 49.70, 41.25, 31.50])/100
+    SE_T =  [175, 200, 225, 250, 275, 300]
+    colors = uio_cmp(np.linspace(0, 1, 3))
+
+    avg = (SE_IN + SE_MID + SE_OUT) / 3
+    plt.plot(*np.polynomial.polynomial.Polynomial.fit(SE_T,avg, deg=1).linspace(), "--", color="k")
+
+    plt.plot(SE_T, SE_IN, markers[0], color=colors[0], label= "SE Inlet")
+    plt.plot(SE_T, SE_MID, markers[1], color=colors[1], label= "SE Middle")
+    plt.plot(SE_T, SE_OUT, markers[2], color=colors[2], label= "SE Outlet")
+
+    plt.xlabel("Deposition temperature [°C]")
+    plt.ylabel("GPC [Å]")
+    plt.legend()
+    plt.ylim(bottom=0)
+    plt.show() # Shows the figure
+
+    """
+    plt.plot(*np.polynomial.polynomial.Polynomial.fit(SE_T,SE_IN, deg=1).linspace(), "--", color=colors[0])
+    plt.plot(*np.polynomial.polynomial.Polynomial.fit(SE_T,SE_MID, deg=1).linspace(), "--", color=colors[1])
+    plt.plot(*np.polynomial.polynomial.Polynomial.fit(SE_T,SE_OUT, deg=1).linspace(), "--", color=colors[2])
+
+    SE_IN_err = [0.014+0.011, 0.013+0.039, 0.018+0.027, 0.010+0.029, 0.017+0.027, 0.014+0.024]
+    SE_MID_err = [0.026+0.013, 0.017+0.029, 0.014+0.024, 0.025+0.027, 0.020+0.027, 0.020+0.025]
+    SE_OUT_err = [0.037+0.014, 0.045+0.030, 0.022+0.022, 0.021+0.030, 0.022+0.026, 0.023+0.024]
+    SE_IN_err = np.array(SE_IN_err)/100
+    SE_MID_err = np.array(SE_MID_err)/100
+    SE_OUT_err = np.array(SE_OUT_err)/100
+    plt.errorbar(SE_T, SE_IN, yerr=SE_IN_err, marker=markers[0], color=colors[0], label="SE Inlet")
+    plt.errorbar(SE_T, SE_MID, yerr=SE_MID_err, marker=markers[1], color=colors[1], label="SE Middle")
+    plt.errorbar(SE_T, SE_OUT, yerr=SE_OUT_err, marker=markers[2], color=colors[2], label="SE Outlet")
+    """
+
+Roughness of Yb2Qz3 vs. Tdep:
+  IN rcParams:
+    "lines.markersize": 12, # marker size, in points. 6 standard. 9 for QCM
+  IN MAIN:
+    SE_IN  = np.array([4.7, 6.2, 0, 0, 0, 0])
+    SE_MID = np.array([6.0, 5.9, 0, 0, 0, 0])
+    SE_OUT = np.array([7.5, 4.2, 0, 0, 0, 0])
+    SE_T =  [175, 200, 225, 250, 275, 300]
+    XRR = [0.3]
+    AFM = [0.3]
+    colors = uio_cmp(np.linspace(0, 1, 5))
+
+    plt.plot(SE_T, SE_IN, markers[0], color=colors[0], label= "SE Inlet")
+    plt.plot(SE_T, SE_MID, markers[1], color=colors[1], label= "SE Middle")
+    plt.plot(SE_T, SE_OUT, markers[2], color=colors[2], label= "SE Outlet")
+    plt.plot(175, XRR, markers[3], color=colors[3], label= "AFM")
+    plt.plot(175, AFM, markers[4], color=colors[4], label= "XRR")
+
+
+    plt.xlabel("Deposition temperature [°C]")
+    plt.ylabel("Roughness [nm]")
+    plt.legend()
+    plt.ylim(bottom=-0.2)
+    plt.show() # Shows the figure
+
+    """
+    plt.plot(*np.polynomial.polynomial.Polynomial.fit(SE_T,SE_IN, deg=2).linspace(), "--", color=colors[0])
+    plt.plot(*np.polynomial.polynomial.Polynomial.fit(SE_T,SE_OUT, deg=2).linspace(), "--", color=colors[1])
+    plt.plot(*np.polynomial.polynomial.Polynomial.fit(SE_T,SE_OUT, deg=2).linspace(), "--", color=colors[2])
+    #plt.plot(*np.polynomial.polynomial.Polynomial.fit(XRR_T,XRR, deg=2).linspace(), "--", color=colors[3])
+    #plt.plot(*np.polynomial.polynomial.Polynomial.fit(AFM_T,AFM_IN, deg=2).linspace(), "--", color=colors[4])
+    #plt.plot(*np.polynomial.polynomial.Polynomial.fit(AFM_T,AFM_OUT, deg=2).linspace(), "--", color=colors[5])
+
+    SE_IN_fit = interp1d(SE_T, SE_IN, kind="quadratic")
+    SE_MID_fit = interp1d(SE_T, SE_MID, kind="quadratic")
+    SE_OUT_fit = interp1d(SE_T, SE_OUT, kind="quadratic")
+    T_fit = np.linspace(175, 300, 101)
+    plt.plot(T_fit, SE_IN_fit(T_fit), "--", color=colors[0])
+    plt.plot(T_fit, SE_MID_fit(T_fit), "--", color=colors[1])
+    plt.plot(T_fit, SE_OUT_fit(T_fit), "--", color=colors[2])
+    """
+
+UV-Vis of Y2Qz3:
+  IN MAIN:
+    wavelength1, trans = np.array(read_UVVis("../data/UV-Vis/ETN4029_Y2Qz3_210428_250-850_M_trans_glass_sphere.txt"))
+    wavelength2, reflec = np.array(read_UVVis("../data/UV-Vis/ETN4029_Y2Qz3_210428_250-850_M_reflect_glass_sphere.txt"))
+
+    plt.plot(wavelength1, 100-trans-reflec, "k")
+    plt.xlabel("Wavelength [nm]") # x-axis name
+    plt.ylabel("Absorption [%]") # y-axis name
+    plt.xlim(250,850)
+    plt.ylim(0,100)
+    plt.show()
+
+    colors = uio_cmp(np.linspace(0, 1, 3))
+    plt.plot(wavelength1, 100-trans-reflec, color=colors[0], label="1-T-R")
+    plt.plot(wavelength1, 100-trans, color=colors[1], label="1-T")
+    plt.plot(wavelength1, 100-reflec, color=colors[2], label="1-R")
+    plt.legend()
+    plt.xlabel("Wavelength [nm]") # x-axis name
+    plt.ylabel("Absorption [%]") # y-axis name
+    plt.xlim(250,850)
+    plt.ylim(0,100)
+    plt.show()
+
+UV-Vis of xYbF3-1Yb2Qz3:
+  IN MAIN:
+    wav1, trans250 = np.array(read_UVVis("../data/UV-Vis/ETN4069_250YbF3-1Yb2Qz3_220427_250-850_M_trans_silica_sphere_8deg_133041.txt"))
+    wav2, reflect250 = np.array(read_UVVis("../data/UV-Vis/ETN4069_250YbF3-1Yb2Qz3_220427_250-850_M_reflec_silica_sphere_140356.txt"))
+    wav3, trans50 = np.array(read_UVVis("../data/UV-Vis/ETN4070_50YbF3-1Yb2Qz3_220427_250-850_M_trans_silica_sphere_8deg_133355.txt"))
+    wav4, reflect50 = np.array(read_UVVis("../data/UV-Vis/ETN4070_50YbF3-1Yb2Qz3_220427_250-850_M_reflec_silica_sphere_140753.txt"))
+    wav5, trans = np.array(read_UVVis("../data/UV-Vis/ETN4063_Yb2Qz3_220427_250-850_M_trans_silica_sphere_142958.txt"))
+    wav6, reflect = np.array(read_UVVis("../data/UV-Vis/ETN4063_Yb2Qz3_220427_250-850_M_reflec_silica_sphere_142231.txt"))
+    colors = uio_cmp(np.linspace(0, 1, 3))
+
+    plt.plot(wav5, 100-trans-reflect, color=colors[0], label="Yb$\mathregular{_2}$Qz$\mathregular{_3}$")
+    plt.plot(wav3, 100-trans50-reflect50, color=colors[1], label="1Yb$\mathregular{_2}$Qz$\mathregular{_3}$-50YbF$\mathregular{_3}$")
+    plt.plot(wav1, 100-trans250-reflect250, color=colors[2], label="1Yb$\mathregular{_2}$Qz$\mathregular{_3}$-250YbF$\mathregular{_3}$")
+    plt.xlabel("Wavelength [nm]") # x-axis name
+    plt.ylabel("Absorbance [%]") # y-axis name
+    plt.legend()
+    plt.xlim(250,850)
+    plt.ylim(-3,100)
+    plt.show()
+
+UV-Vis of Y2Qz3, Yb2Qz3 and Qz in EtOH:
+  IN MAIN:
+    wavelength1, transY = np.array(read_UVVis("../data/UV-Vis/ETN4029_Y2Qz3_210428_250-850_M_trans_glass_sphere.txt"))
+    wavelength2, reflectY = np.array(read_UVVis("../data/UV-Vis/ETN4029_Y2Qz3_210428_250-850_M_reflect_glass_sphere.txt"))
+    wavelength3, transYb = np.array(read_UVVis("../data/UV-Vis/ETN4063_Yb2Qz3_220427_250-850_M_trans_silica_sphere_142958.txt"))
+    wavelength4, reflectYb = np.array(read_UVVis("../data/UV-Vis/ETN4063_Yb2Qz3_220427_250-850_M_reflec_silica_sphere_142231.txt"))
+    wavelength5, transQz = np.array(read_OpticsLab("../data/Optics Lab/ETNL1_Qz_trans_1ms_1000avg_ethanol-ref_Transmission__0__12-38-53-538.txt"))
+    wavelength6, transGlass = np.array(read_UVVis("../data/UV-Vis/clearGlass_210226_250-850_M_trans.txt"))
+    colors = uio_cmp(np.linspace(0, 1, 3))
+
+    wavelength5 = wavelength5[137:1557] # 250-850nm
+    transQz = transQz[137:1557] # 250-850nm (The file is in % from before, just noise in UV makes it weird)
+
+    # This is not a very scientific or accurate way of averaging data, but it will not create too many issues, is quick to implement and does what I need it to: Reduce noise
+    avgtransQz = []
+    avgtransQz.append(transQz[0])
+    avgtransQz.append((transQz[0] + transQz[1] + transQz[3]) / 3)
+    for i in range(2,len(transQz)-2):
+        avgtransQz.append((transQz[i-2] + transQz[i-1] + transQz[i] + transQz[i+1] + transQz[i+2]) / 5)
+    avgtransQz.append((transQz[-3] + transQz[-2] + transQz[-1]) / 3)
+    avgtransQz.append(transQz[-3])
+    avgtransQz = np.array(avgtransQz)
+
+    plt.plot(wavelength6, 100-transGlass, color=colors[0], alpha=0.5, label="Glass*")
+    plt.plot(wavelength1, 100-transY-reflectY, color=colors[0], label="Y$\mathregular{_2}$Qz$\mathregular{_3}$ on glass")
+    plt.plot(wavelength3, 100-transYb-reflectYb, color=colors[1], label="Yb$\mathregular{_2}$Qz$\mathregular{_3}$ on silica")
+    #plt.plot(wavelength5, 100-transQz, color=colors[2], label="Qz in ethanol*") # Raw data
+    plt.plot(wavelength5, 100-avgtransQz, color=colors[2], label="Qz in ethanol*") # Averaged data
+    plt.xlabel("Wavelength [nm]") # x-axis name
+    plt.ylabel("Absorption [%]") # y-axis name
+    plt.xlim(250,850)
+    plt.ylim(-3,100)
+    plt.legend()
+    plt.show()
+
+QCM NH4F:
+  IN RCPARAMS:
+    "lines.markersize": 9 # marker size, in points. 6 standard
+    "figure.figsize": "12.8, 9.6",  # figure size in inches. This is twice as large as normal (6.4, 4.8)
+    "font.size": 21, # Changes font size. 21 for large figures, 19 for small
+    "xtick.major.size": 14, # major tick size in points (3.5 default)
+    "xtick.minor.size": 8, # minor tick size in points (2 default)
+    "ytick.major.size": 14, # major tick size in points (3.5 default)
+    "ytick.minor.size": 8 # minor tick size in points (2 default)
+  IN MAIN:
+    CatPulseDryA = np.array([524.4241211, 495.3713006, 452.1037229, 380.781274, 91.22211373, 19.4733536, -6.171989864])
+    CatPulseDryB = np.array([498.1816573, 468.1258412, 429.4236845, 386.2592844, 197.779942, 47.99047734, -2.262887939])
+    AnPulseDryA = np.array([374.6187819, 377.5993986, 366.8473883, 346.2811465, 296.1222544, 211.9130628, 12.64005287])
+    AnPulseDryB = np.array([412.5889537, 394.3631553, 371.1314657, 346.4726152, 291.142267, 208.3372887, 12.20923209])
+    CatPulseUntreatedA = np.array([492.0137037, 473.2965874, 439.592923, 382.878019, 100.2186494, 17.4600481, -10.52849169])
+    CatPulseUntreatedB = np.array([488.9223793, 465.0354199, 431.1676448, 394.8075931, 221.9934485, 52.89958987, -5.139101136])
+    AnPulseUntreatedA = np.array([394.5647127, 395.3157594, 378.0121309, 356.6506066, 301.9004506, 210.6751727, 12.15492472])
+    AnPulseUntreatedB = np.array([436.0002497, 414.2987374, 385.3383521, 358.1103676, 298.3327029, 209.8632259, 13.69788719])
+    PulseTime = [8, 5, 3, 2, 1, 0.5, 0]
+    CatPulseDryA_fit = interp1d(PulseTime, CatPulseDryA, kind="quadratic")
+    CatPulseDryB_fit = interp1d(PulseTime, CatPulseDryB, kind="quadratic")
+    CatPulseUntreatedA_fit = interp1d(PulseTime, CatPulseUntreatedA, kind="quadratic")
+    CatPulseUntreatedB_fit = interp1d(PulseTime, CatPulseUntreatedB, kind="quadratic")
+    AnPulseDryA_fit = interp1d(PulseTime, AnPulseDryA, kind="quadratic")
+    AnPulseDryB_fit = interp1d(PulseTime, AnPulseDryB, kind="quadratic")
+    AnPulseUntreatedA_fit = interp1d(PulseTime, AnPulseUntreatedA, kind="quadratic")
+    AnPulseUntreatedB_fit = interp1d(PulseTime, AnPulseUntreatedB, kind="quadratic")
+    PulseTime_fit = np.linspace(8, 0, 101)
+
+    CatPurgeDryA = np.array([367.1866117, 370.4172704, 375.0585536])
+    CatPurgeDryB = np.array([371.7549531, 377.2294072, 381.8758801])
+    CatPurgeUntreatedA = np.array([369.5202844, 373.2961838, 374.853672])
+    CatPurgeUntreatedB = np.array([378.3984769, 385.9787857, 385.4009353])
+    AnPurgeDryA = np.array([381.2887215 ,385.31646, 385.5706135])
+    AnPurgeDryB = np.array([353.4413363, 371.7640131, 387.4789418])
+    AnPurgeUntreatedA = np.array([374.9325346, 378.3033471, 375.1339143])
+    AnPurgeUntreatedB = np.array([353.8564254 ,372.4212706, 384.8066826])
+    PurgeTime = [4, 2, 1]
+    CatPurgeDryA_fit = interp1d(PurgeTime, CatPurgeDryA, kind="quadratic")
+    CatPurgeDryB_fit = interp1d(PurgeTime, CatPurgeDryB, kind="quadratic")
+    CatPurgeUntreatedA_fit = interp1d(PurgeTime, CatPurgeUntreatedA, kind="quadratic")
+    CatPurgeUntreatedB_fit = interp1d(PurgeTime, CatPurgeUntreatedB, kind="quadratic")
+    AnPurgeDryA_fit = interp1d(PurgeTime, AnPurgeDryA, kind="quadratic")
+    AnPurgeDryB_fit = interp1d(PurgeTime, AnPurgeDryB, kind="quadratic")
+    AnPurgeUntreatedA_fit = interp1d(PurgeTime, AnPurgeUntreatedA, kind="quadratic")
+    AnPurgeUntreatedB_fit = interp1d(PurgeTime, AnPurgeUntreatedB, kind="quadratic")
+    PurgeTime_fit = np.linspace(4, 1, 101)
+
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2) # Creates a figure with 4 subplots
+
+    # Cation Pulse
+    colors = uio_cmp(np.linspace(0, 1, 2)) # From start to end of colormap with n points ALL SENSORS
+    ax1.plot(PulseTime, CatPulseDryA, markers[0], color=colors[0], label="Treated NH$_4$F, Sensor A")
+    ax1.plot(PulseTime, CatPulseDryB, markers[1], color=colors[0], label="Treated NH$_4$F, Sensor B")
+    ax1.plot(PulseTime, CatPulseUntreatedA, markers[0], color=colors[1], label="Untreated NH$_4$F, Sensor A")
+    ax1.plot(PulseTime, CatPulseUntreatedB, markers[1], color=colors[1], label="Untreated NH$_4$F, Sensor B")
+    ax1.plot(PulseTime_fit, CatPulseDryA_fit(PulseTime_fit), "--", color=colors[0])
+    ax1.plot(PulseTime_fit, CatPulseDryB_fit(PulseTime_fit), "--", color=colors[0])
+    ax1.plot(PulseTime_fit, CatPulseUntreatedA_fit(PulseTime_fit), "--", color=colors[1])
+    ax1.plot(PulseTime_fit, CatPulseUntreatedB_fit(PulseTime_fit), "--", color=colors[1])
+    ax1.set_title("Yb(thd)$_3$ pulse")
+    ax1.set_xlim(left=0)
+    ax1.set_ylim(bottom=0)
+    ax1.tick_params(labeltop=True, labelbottom=False)
+    #ax1.legend()
+
+    # Anion Pulse
+    ax2.plot(PulseTime, AnPulseDryA, markers[0], color=colors[0], label="Treated NH$_4$F, Sensor A")
+    ax2.plot(PulseTime, AnPulseDryB, markers[1], color=colors[0], label="Treated NH$_4$F, Sensor B")
+    ax2.plot(PulseTime, AnPulseUntreatedA, markers[0], color=colors[1], label="Untreated NH$_4$F, Sensor A")
+    ax2.plot(PulseTime, AnPulseUntreatedB, markers[1], color=colors[1], label="Untreated NH$_4$F, Sensor B")
+    ax2.plot(PulseTime_fit, AnPulseDryA_fit(PulseTime_fit), "--", color=colors[0])
+    ax2.plot(PulseTime_fit, AnPulseDryB_fit(PulseTime_fit), "--", color=colors[0])
+    ax2.plot(PulseTime_fit, AnPulseUntreatedA_fit(PulseTime_fit), "--", color=colors[1])
+    ax2.plot(PulseTime_fit, AnPulseUntreatedB_fit(PulseTime_fit), "--", color=colors[1])
+    ax2.set_title("NH$_4$F pulse")
+    #ax2.set_xlim(left=0)
+    ax2.set_ylim(bottom=0)
+    ax2.sharex(ax1)
+    ax2.tick_params(labeltop=True, labelbottom=False, labelleft=False, labelright=True)
+
+    # Cation Purge
+    ax3.plot(PurgeTime, CatPurgeDryA, markers[0], color=colors[0], label="Treated NH$_4$F, Sensor A")
+    ax3.plot(PurgeTime, CatPurgeDryB, markers[1], color=colors[0], label="Treated NH$_4$F, Sensor B")
+    ax3.plot(PurgeTime, CatPurgeUntreatedA, markers[0], color=colors[1], label="Untreated NH$_4$F, Sensor A")
+    ax3.plot(PurgeTime, CatPurgeUntreatedB, markers[1], color=colors[1], label="Untreated NH$_4$F, Sensor B")
+    ax3.plot(PurgeTime_fit, CatPurgeDryA_fit(PurgeTime_fit), "--", color=colors[0])
+    ax3.plot(PurgeTime_fit, CatPurgeDryB_fit(PurgeTime_fit), "--", color=colors[0])
+    ax3.plot(PurgeTime_fit, CatPurgeUntreatedA_fit(PurgeTime_fit), "--", color=colors[1])
+    ax3.plot(PurgeTime_fit, CatPurgeUntreatedB_fit(PurgeTime_fit), "--", color=colors[1])
+    ax3.set_title("Yb(thd)$_3$ purge")
+    ax3.set_xlim(left=0, right=4.5)
+    ax3.set_ylim(bottom=0, top=450)
+
+    # Anion Purge
+    ax4.plot(PurgeTime, AnPurgeDryA, markers[0], color=colors[0], label="Treated NH$_4$F, Sensor A")
+    ax4.plot(PurgeTime, AnPurgeDryB, markers[1], color=colors[0], label="Treated NH$_4$F, Sensor B")
+    ax4.plot(PurgeTime, AnPurgeUntreatedA, markers[0], color=colors[1], label="Untreated NH$_4$F, Sensor A")
+    ax4.plot(PurgeTime, AnPurgeUntreatedB, markers[1], color=colors[1], label="Untreated NH$_4$F, Sensor B")
+    ax4.plot(PurgeTime_fit, AnPurgeDryA_fit(PurgeTime_fit), "--", color=colors[0])
+    ax4.plot(PurgeTime_fit, AnPurgeDryB_fit(PurgeTime_fit), "--", color=colors[0])
+    ax4.plot(PurgeTime_fit, AnPurgeUntreatedA_fit(PurgeTime_fit), "--", color=colors[1])
+    ax4.plot(PurgeTime_fit, AnPurgeUntreatedB_fit(PurgeTime_fit), "--", color=colors[1])
+    ax4.set_title("NH$_4$F purge")
+    #ax4.set_xlim(left=0, right=4.5)
+    #ax4.set_ylim(bottom=0, top=450)
+    ax4.sharex(ax3)
+    ax4.sharey(ax3)
+    ax4.tick_params(labelleft=False, labelright=True)
+
+    fig.supxlabel("Time [s]")
+    fig.supylabel("QCM response [ng/cycle cm$^2$]")
+    plt.legend()
+    plt.show()
+
+QCM Pulses & Purges:
+  ETN4016 Y2Qz3:
+    CatPulseA = np.array([1.88275707, 1.827534674, 1.729078785, 0.942238487, 0.200255374, 0.060016023, -0.005922633])
+    CatPulseB = np.array([1.084558631, 1.114277798, 1.023620237, 0.998154016, 0.440089512, 0.129713893, -0.005059194])
+    AnPulseA = np.array([0.788045153, 0.863207072, 0.995240374, 1.128539736, 0.93463153, 0.292604391, 0.006831537])
+    AnPulseB = np.array([0.998649365, 1.003028605, 0.981648432, 0.957071962, 0.788500444, 0.461096204, 0.008191614])
+    PulseTime = [8, 5, 3, 2, 1, 0.5, 0]
+
+    CatPurgeA = np.array([1.008702261, 0.99761147, 0.983599222])
+    CatPurgeB = np.array([0.984682687, 0.979053948, 0.998006616])
+    AnPurgeA = np.array([1.045064648, 1.00835469, 0.971507792])
+    AnPurgeB = np.array([0.950620481, 0.981735502, 0.999561556])
+    PurgeTime = [4, 2, 1]
+  ETN4037 NdF3:
+    CatPulseA = np.array([4.369373243, 2.331753398, 1.225345949, 0.881597194, 0.58347288, 0.507476873, 0.26589631])
+    CatPulseB = np.array([4.059538595, 2.262024498, 1.2143881, 0.857968697, 0.576104447, 0.458734091, 0.257461708])
+    AnPulseA = np.array([1.332429742, 1.049074512, 0.942202383, 0.90571835, 0.864958047, 0.784686928, 1.236656463])
+    AnPulseB = np.array([1.268506898, 0.981299931, 0.931928169, 0.923194418, 0.823116777, 0.742796652, 0.421114006])
+    PulseTime = [8, 5, 3, 2, 1, 0.5, 0]
+
+    CatPurgeA = np.array([1.104768953, 1.022592921, 0.960344621])
+    CatPurgeB = np.array([1.030470131, 0.955302423, 0.85183106])
+    AnPurgeA = np.array([1.213351166, 1.084152952, 1.019878025])
+    AnPurgeB = np.array([1.143622684, 1.002929786, 1.06589624])
+    PurgeTime = [4, 2, 1]
+  ETN4038 YBF3:
+    CatPulseA = np.array([929.8580211, 743.764628, 524.5272254, 392.6226797, 154.142565, 48.76417978, 9.986581177])
+    CatPulseB = np.array([896.8444655, 720.352071, 511.9622678, 399.7350358, 196.3628016, 68.08548559, 17.02211405])
+    AnPulseA = np.array([397.7222835, 386.7274842, 401.2607945, 383.3768814, 298.1437634, 292.2501296, 32.05624749])
+    AnPulseB = np.array([427.7168973, 412.3776384, 408.6015709, 383.1048099, 316.4266896, 324.6095164, 28.02557456])
+    PulseTime = [8, 5, 3, 2, 1, 0.5, 0]
+
+    CatPurgeA = np.array([373.7326384, 398.5514711, 392.421685])
+    CatPurgeB = np.array([397.3627453, 405.308257, 409.0485972])
+    AnPurgeA = np.array([337.92641, 303.0158464, 374.8170762])
+    AnPurgeB = np.array([316.1166413, 337.7953684, 398.2547113])
+    PurgeTime = [4, 2, 1]
+  ETN4039 TmF3:
+    CatPulseA = np.array([1.8158543, 1.635575046, 1.25311769, 0.904918922, 0.695016178, 0.253391426, 0.016018853])
+    CatPulseB = np.array([1.91343603, 1.892030201, 1.313401527, 0.973198702, 0.67446236, 0.357836788, 0.031639207])
+    AnPulseA = np.array([1.056332283, 0.927458784, 1.071857963, 0.867319999, 0.817454624, 0.664865292, 0.053683929])
+    AnPulseB = np.array([1.078232594, 0.966380504, 0.986461334, 0.944468263, 0.75081872, 0.618136165, 0.045930332])
+    PulseTime = [8, 5, 3, 2, 1, 0.5, 0]
+
+    CatPurgeA = np.array([1.009418791, 1.00318704, 1.010262175])
+    CatPurgeB = np.array([0.985581163, 1.029338424, 1.026872229])
+    AnPurgeA = np.array([0.923154159, 0.957752065, 0.993448286])
+    AnPurgeB = np.array([0.825533342, 0.95160115, 0.979674801])
+    PurgeTime = [4, 2, 1]
+  ETN4040 YbF3:
+    CatPulseA = np.array([583.2941073, 540.6684671, 474.0735792, 412.5022394, 132.4151607, 28.23203388, -6.306120508])
+    CatPulseB = np.array([704.5359209, 555.6180526 ,477.5326126, 410.8007045, 185.1919031, 44.8353383, -3.251354197])
+    AnPulseA = np.array([381.5480234, 420.1373677, 354.6279258, 362.1454725, 287.7460218, 261.4526306, 40.48858287])
+    AnPulseB = np.array([384.5242315, 411.3606447, 356.0206071, 358.5791197, 302.9686417, 286.4669755, 37.11971096])
+    PulseTime = [8, 5, 3, 2, 1, 0.5, 0]
+
+    CatPurgeA = np.array([442.5981989, 422.278215, 406.593019])
+    CatPurgeB = np.array([427.67792, 412.0413726, 398.6905954])
+    AnPurgeA = np.array([361.4368231, 359.06588, 408.4334784])
+    AnPurgeB = np.array([342.9912655, 350.3094942, 397.831131])
+    PurgeTime = [4, 2, 1]
+  ETN4041 YF3:
+    CatPulseA = np.array([2.897195356, 2.439827271, 1.80282863, 0.886694864, 0.277338197, 0.084842313, -0.023665837])
+    CatPulseB = np.array([2.279160922, 1.869399062, 1.375949904, 0.866372055, 0.264040792, 0.095483096, -0.004568349])
+    AnPulseA = np.array([0.876497236, 1.033283579, 1.271430804, 1.284068523, 1.285175213, 1.358432748, 0.143760513])
+    AnPulseB = np.array([0.922428677, 1.025250441, 1.149334309, 1.085489995, 1.030034208, 1.032728438, 0.128029338])
+    PulseTime = [8, 5, 3, 2, 1, 0.5, 0]
+
+    CatPurgeA = np.array([0.974232979, 1.029235285, 0.975706034])
+    CatPurgeB = np.array([0.954742947, 0.995448019, 0.9467581])
+    AnPurgeA = np.array([1.49147603, 1.081463123, 1.042685616])
+    AnPurgeB = np.array([1.175058335, 0.98748532, 0.995823776])
+    PurgeTime = [4, 2, 1]
+  IN MAIN:
+    CatPulseA = np.array([DATA])
+    CatPulseB = np.array([DATA])
+    AnPulseA = np.array([DATA])
+    AnPulseB = np.array([DATA])
+    PulseTime = [8, 5, 3, 2, 1, 0.5, 0]
+
+    CatPurgeA = np.array([DATA])
+    CatPurgeB = np.array([DATA])
+    AnPurgeA = np.array([DATA])
+    AnPurgeB = np.array([DATA])
+    PurgeTime = [4, 2, 1]
+
+    CatPulseA_fit = interp1d(PulseTime, CatPulseA, kind="quadratic")
+    CatPulseB_fit = interp1d(PulseTime, CatPulseB, kind="quadratic")
+    AnPulseA_fit = interp1d(PulseTime, AnPulseA, kind="quadratic")
+    AnPulseB_fit = interp1d(PulseTime, AnPulseB, kind="quadratic")
+    PulseTime_fit = np.linspace(8, 0, 101)
+
+    CatPurgeA_fit = interp1d(PurgeTime, CatPurgeA, kind="quadratic")
+    CatPurgeB_fit = interp1d(PurgeTime, CatPurgeB, kind="quadratic")
+    AnPurgeA_fit = interp1d(PurgeTime, AnPurgeA, kind="quadratic")
+    AnPurgeB_fit = interp1d(PurgeTime, AnPurgeB, kind="quadratic")
+    PurgeTime_fit = np.linspace(4, 1, 101)
+
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2) # Creates a figure with 4 subplots
+
+    # Cation Pulse
+    colors = uio_cmp(np.linspace(0, 1, 2)) # From start to end of colormap with n points ALL SENSORS
+    ax1.plot(PulseTime, CatPulseA, markers[0], color=colors[0], label="Outlet")
+    ax1.plot(PulseTime, CatPulseB, markers[1], color=colors[1], label="Inlet")
+    ax1.plot(PulseTime_fit, CatPulseA_fit(PulseTime_fit), "--", color=colors[0])
+    ax1.plot(PulseTime_fit, CatPulseB_fit(PulseTime_fit), "--", color=colors[1])
+    ax1.set_title("Yb(thd)$_3$ pulse")
+    ax1.set_xlim(left=0)
+    ax1.set_ylim(bottom=0)
+    ax1.tick_params(labeltop=True, labelbottom=False)
+    #ax1.legend()
+
+    # Anion Pulse
+    ax2.plot(PulseTime, AnPulseA, markers[0], color=colors[0], label="Outlet")
+    ax2.plot(PulseTime, AnPulseB, markers[1], color=colors[1], label="Inlet")
+    ax2.plot(PulseTime_fit, AnPulseA_fit(PulseTime_fit), "--", color=colors[0])
+    ax2.plot(PulseTime_fit, AnPulseB_fit(PulseTime_fit), "--", color=colors[1])
+    ax2.set_title("NH$_4$F pulse")
+    #ax2.set_xlim(left=0)
+    ax2.set_ylim(bottom=0)
+    ax2.sharex(ax1)
+    ax2.tick_params(labeltop=True, labelbottom=False, labelleft=False, labelright=True)
+
+    # Cation Purge
+    ax3.plot(PurgeTime, CatPurgeA, markers[0], color=colors[0], label="Outlet")
+    ax3.plot(PurgeTime, CatPurgeB, markers[1], color=colors[1], label="Inlet")
+    ax3.plot(PurgeTime_fit, CatPurgeA_fit(PurgeTime_fit), "--", color=colors[0])
+    ax3.plot(PurgeTime_fit, CatPurgeB_fit(PurgeTime_fit), "--", color=colors[1])
+    ax3.set_title("Yb(thd)$_3$ purge")
+    ax3.set_xlim(left=0, right=4.5)
+    ax3.set_ylim(bottom=0, top=500)
+
+    # Anion Purge
+    ax4.plot(PurgeTime, AnPurgeA, markers[0], color=colors[0], label="Outlet")
+    ax4.plot(PurgeTime, AnPurgeB, markers[1], color=colors[1], label="Inlet")
+    ax4.plot(PurgeTime_fit, AnPurgeA_fit(PurgeTime_fit), "--", color=colors[0])
+    ax4.plot(PurgeTime_fit, AnPurgeB_fit(PurgeTime_fit), "--", color=colors[1])
+    ax4.set_title("NH$_4$F purge")
+    #ax4.set_xlim(left=0, right=4.5)
+    #ax4.set_ylim(bottom=0, top=450)
+    ax4.sharex(ax3)
+    ax4.sharey(ax3)
+    ax4.tick_params(labelleft=False, labelright=True)
+
+    fig.supxlabel("Time [s]")
+    fig.supylabel("QCM response [ng/cycle cm$^2$]")
+    plt.legend()
+    plt.show()
+
+QCM long runs:
+  NH4F (and YbF3):
+    time, Average_A, StdevA1, StdevA2, Average_B, StdevB1, StdevB2 = read_QCM_average("../data/QCM/ETN4005 YbF3 dry NH4F/Average_no_2.txt") # ETN4005
+    #time, Average_A, StdevA1, StdevA2, Average_B, StdevB1, StdevB2 = read_QCM_average("../data/QCM/ETN4006 YbF3 wet NH4F/Average_no_2.txt") # ETN4006
+
+    plt.text(80, -2, "Yb(thd)$\mathregular{_3}$\n20 s pulse", horizontalalignment="center")
+    plt.text(95, -2, "Yb(thd)$\mathregular{_3}$\n10 s purge", horizontalalignment="center")
+    plt.text(115, -2, "NH$\mathregular{_4}$F\n30 s pulse", horizontalalignment="center")
+    plt.text(135, -2, "NH$\mathregular{_4}$F\n10 s purge", horizontalalignment="center")
+
+    plt.xlim(left=65, right=145)
+    plt.ylim(bottom=-4, top=21) # ETN4005
+    #plt.ylim(bottom=-4, top=19) # ETN4006
+
+    Discussion:
+      plt.plot([100, 100], [-1.780, 12.224], "k")
+      plt.text(104, 5.222, "$\mathregular{\Delta m_1}$\n14.00 Hz", horizontalalignment="center", verticalalignment="center") #14.004 Hz
+      plt.plot([140, 140], [12.224, 4.121], "k")
+      plt.text(136, 8.1725, "$\mathregular{\Delta m_2}$\n-8.10 Hz", horizontalalignment="center", verticalalignment="center") # -8.103 Hz
+  Y2Qz3:
+    time, Average_A, StdevA1, StdevA2, Average_B, StdevB1, StdevB2 = read_QCM_average("../data/QCM/ETN4016 Y2Qz3/Average_no_2.txt") # ETN4006
+
+    plt.text(80, 3, "Y(thd)$\mathregular{_3}$\n20 s pulse", horizontalalignment="center")
+    plt.text(95, 3, "Y(thd)$\mathregular{_3}$\n10 s purge", horizontalalignment="center")
+    plt.text(115, 3, "Qz\n30 s pulse", horizontalalignment="center")
+    plt.text(135, 3, "Qz\n10 s purge", horizontalalignment="center")
+
+    plt.ylim(bottom=1, top=28) # Both
+    #plt.ylim(bottom=2, top=28) # Outlet
+
+    Discussion:
+      plt.plot([100, 100], [3.885, 12.933], "k")
+      plt.text(104, 8.409, "$\mathregular{\Delta m_1}$\n9.05 Hz", horizontalalignment="center", verticalalignment="center") #9.048 Hz
+      plt.plot([140, 140], [12.933, 13.751], "k")
+      plt.text(140, 12.8, "$\mathregular{\Delta m_2}$\n0.82 Hz", horizontalalignment="center", verticalalignment="top") # 0.818 Hz
+  NdF3:
+    # Nine first cycles from each set cut
+    time, Average_A, StdevA1, StdevA2, Average_B, StdevB1, StdevB2 = read_QCM_average("../data/QCM/ETN4037 NdF3/Average_no_2.txt")
+
+    plt.text(80, 15, "Nd(thd)$\mathregular{_3}$\n20 s pulse", horizontalalignment="center")
+    plt.text(95, 15, "Nd(thd)$\mathregular{_3}$\n10 s purge", horizontalalignment="center")
+    plt.text(115, 15, "NH$\mathregular{_4}$F\n30 s pulse", horizontalalignment="center")
+    plt.text(135, 15, "NH$\mathregular{_4}$F\n10 s purge", horizontalalignment="center")
+
+    plt.ylim(bottom=13, top=56) # Both
+    plt.ylim(bottom=12, top=56) # Inlet
+  TmF3:
+    # Two first and seven last cycles from each set cut
+    time, Average_A, StdevA1, StdevA2, Average_B, StdevB1, StdevB2 = read_QCM_average("../data/QCM/ETN4039 TmF3/Average_no_2.txt")
+
+    plt.text(80, 6, "Tm(thd)$\mathregular{_3}$\n20 s pulse", horizontalalignment="center")
+    plt.text(95, 6, "Tm(thd)$\mathregular{_3}$\n10 s purge", horizontalalignment="center")
+    plt.text(115, 6, "NH$\mathregular{_4}$F\n30 s pulse", horizontalalignment="center")
+    plt.text(135, 6, "NH$\mathregular{_4}$F\n10 s purge", horizontalalignment="center")
+
+    #plt.ylim(bottom=4, top=36) # Both
+    plt.ylim(bottom=4, top=35) # Inlet
+  YF3:
+    time, Average_A, StdevA1, StdevA2, Average_B, StdevB1, StdevB2 = read_QCM_average("../data/QCM/ETN4041 YF3/Average_no_2.txt")
+
+    plt.text(80, -2, "Y(thd)$\mathregular{_3}$\n20 s pulse", horizontalalignment="center")
+    plt.text(95, -2, "Y(thd)$\mathregular{_3}$\n10 s purge", horizontalalignment="center")
+    plt.text(115, -2, "NH$\mathregular{_4}$F\n30 s pulse", horizontalalignment="center")
+    plt.text(135, -2, "NH$\mathregular{_4}$F\n10 s purge", horizontalalignment="center")
+
+    plt.ylim(bottom=-4, top=17) # Both
+  IN MAIN:
+    #time, Average_A, StdevA1, StdevA2, Average_B, StdevB1, StdevB2 = read_QCM_average("../data/QCM/ETN4005 YbF3 dry NH4F/Average_no_2.txt") # ETN4005
+    time, Average_A, StdevA1, StdevA2, Average_B, StdevB1, StdevB2 = read_QCM_average("../data/QCM/ETN4006 YbF3 wet NH4F/Average_no_2.txt") # ETN4006
+
+    time = np.array(time)
+    Average_A = np.array(Average_A)
+    StdevA1 = np.array(StdevA1)
+    StdevA2 = np.array(StdevA2)
+    Average_B = np.array(Average_B)
+    StdevB1 = np.array(StdevB1)
+    StdevB2 = np.array(StdevB2)
+
+    colors = uio_cmp(np.linspace(0, 1, 2)) # Make a set of 2 colors from uio_colormap
+
+    # [701:1402]
+    plt.plot(time, Average_A, color=colors[0], label="Outlet")
+    plt.fill_between(time, StdevA1, StdevA2, color=colors[0], alpha=0.25)
+    plt.plot(time, Average_B, color=colors[1], label="Inlet")
+    plt.fill_between(time, StdevB1, StdevB2, color=colors[1], alpha=0.25)
+
+    #plt.axvline(70, linestyle="--", color="k",  alpha=0.25)
+    #plt.axvline(90, linestyle="--", color="k", alpha=0.25)
+    #plt.axvline(100, linestyle="--", color="k", alpha=0.25)
+    #plt.axvline(130, linestyle="--", color="k", alpha=0.25)
+    #plt.axvline(140, linestyle="--", color="k",  alpha=0.25)
+    plt.axvspan(60, 70, color="#B2B3B7", alpha=0.25)
+    plt.axvspan(90, 100, color="#B2B3B7", alpha=0.25)
+    plt.axvspan(130, 140, color="#B2B3B7", alpha=0.25)
+
+    plt.text(80, -2, "Yb(thd)$_3$\n20 s pulse", horizontalalignment="center")
+    plt.text(95, -2, "Yb(thd)$_3$\n10 s purge", horizontalalignment="center")
+    plt.text(115, -2, "NH$_4$F\n30 s pulse", horizontalalignment="center")
+    plt.text(135, -2, "NH$_4$F\n10 s purge", horizontalalignment="center")
+
+    #plt.xlim(left=0, right=70)
+    plt.xlim(left=65, right=145)
+    #plt.ylim(bottom=-4, top=21) # ETN4005
+    plt.ylim(bottom=-4, top=19) # ETN4006
+    plt.xlabel("Time [s]")
+    plt.ylabel("QCM response [Hz]$\mathrm{\propto}$Δm")
+    plt.legend()
+    plt.show()
+
+FTIR of Y2Qz3:
+  IN MAIN:
+    x, y = np.array(read_FTIR("../data/FTIR/ETN4015_Y2Qz3_N2detector_res4_scantime64_reflec.dpt"))
+    xQz, yQz = np.array(read_FTIR("../data/FTIR/FTIR of Qz powder.txt"))
+    xAl, yAl = np.array(read_FTIR("../data/FTIR/PAH 4506 Al2Qz3 75deg 070420.dpt"))
+    y -= 0.07
+    yAl -= 0.07
+
+    colors = uio_cmp(np.linspace(0, 1, 2))
+    fig, ((ax1, ax2, ax3)) = plt.subplots(3) # Creates a subplot with 2 plots vertically stacked
+
+    ax1.plot(xQz, yQz, color=colors[1], label="Qz powder") # Quinizarin
+    ax1.set_ylabel("Absorbance [a.u.]")
+    ax1.tick_params(labeltop=True, labelbottom=False)
+    ax1.legend()
+    ax1.sharex(ax2)
+    #ax1.set_ylim(top=1)
+
+    ax2.plot(x, y*100, "k", label="Y$\mathregular{_2}$Qz$\mathregular{_3}$ film") # Y2Qz3
+    ax2.set_ylabel("Reflectance [%]")
+    ax2.set_xlim(4000,500)
+    ax2.set_ylim(bottom=73, top=100)
+    ax2.tick_params(labeltop=False, labelbottom=False)
+    ax2.legend()
+
+    ax3.plot(xAl, yAl*100, color=colors[0], label="Al$\mathregular{_2}$Qz$\mathregular{_3}$ film") # Al2Qz3
+    ax3.set_ylabel("Reflectance [%]")
+    ax3.set_ylim(bottom=86, top=100)
+    #ax3.set_yticks([99, 95, 90])
+    ax3.tick_params(labeltop=False)
+    ax3.legend(loc="lower left")
+    ax3.set_xlabel("Wavenumber [cm$\mathregular{^{-1}}$]") # x-axis name
+    ax3.sharex(ax2)
+
+    #ax2.tick_params(labeltop=False, labelbottom=False, labelleft=False, labelright=True)
+    #ax2.yaxis.set_label_position("right")
+    #fig.tight_layout()
+    #fig.subplots_adjust(hspace=0)
+    plt.show() # Shows the figure
+
+CL-SEM of Siljes series:
+  IN MAIN:
+    SHS4107 = read_CLSEM("../data/CL SEM/Silje sin serie/processed/SHS4107_stitched.csv")
+    SHS4108 = read_CLSEM("../data/CL SEM/Silje sin serie/processed/SHS4108_stitched.csv")
+    SHS4109 = read_CLSEM("../data/CL SEM/Silje sin serie/processed/SHS4109_stitched.csv")
+    SHS4113 = read_CLSEM("../data/CL SEM/Silje sin serie/processed/SHS4113_stitched.csv")
+    SHS4111 = read_CLSEM("../data/CL SEM/Silje sin serie/processed/SHS4111_stitched.csv")
+    SHS4112 = read_CLSEM("../data/CL SEM/Silje sin serie/processed/SHS4112_stitched.csv")
+    SHS4114 = read_CLSEM("../data/CL SEM/Silje sin serie/processed/SHS4114_stitched.csv")
+
+    SHS4108_sum = sum_remove_baseline(SHS4108[1], 82, 114)
+    SHS4109_sum = sum_remove_baseline(SHS4109[1], 76, 114)
+    SHS4113_sum = sum_remove_baseline(SHS4113[1], 78, 116)
+    SHS4111_sum = sum_remove_baseline(SHS4111[1], 82, 115)
+    SHS4112_sum = sum_remove_baseline(SHS4112[1], 85, 115)
+
+    distance = np.array([0, 15, 45, 75, 150])
+    integral = np.array([SHS4108_sum, SHS4109_sum, SHS4113_sum, SHS4111_sum, SHS4112_sum])
+
+    integral_fit = interp1d(distance, integral, kind="quadratic")
+    distance_fit = np.linspace(distance[0], distance[-1], 101)
+    plt.plot(distance_fit, integral_fit(distance_fit), "--", color="k")
+
+    plt.plot(distance, integral, "ko")
+    #plt.title("Integral over peak at 300nm")
+    plt.xlabel("Distance Nd-Tm [# of cycles]")
+    plt.ylabel("Intensity [a.u.]")
+    plt.ylim(bottom=0)
+    plt.show()
+
+Color Experiments:
+  # COLOR MAPS
+  def plot_examples(colormaps):
+
+      #Helper function to plot data with associated colormap.
+
+      np.random.seed(19680801)
+      data = np.random.randn(30, 30)
+      n = len(colormaps)
+      fig, axs = plt.subplots(1, n, figsize=(n * 2 + 2, 3),
+                              constrained_layout=True, squeeze=False)
+      for [ax, cmap] in zip(axs.flat, colormaps):
+          psm = ax.pcolormesh(data, cmap=cmap, rasterized=True, vmin=-4, vmax=4)
+          fig.colorbar(psm, ax=ax)
+      plt.show()
+
+  #uio_palette1 = ["#F4F6FF", "#FB6666", "#DC4234", "#000000"] # UiO white-ish, UiO red secondary color, PMS-485, black. Taken from: https://www.uio.no/om/designmanual/profilelementer/fargepalett/
+  #uio_palette2 = ["#FB6666", "#DC4234", "#000000"] # UiO red secondary color, PMS-485, black. Taken from: https://www.uio.no/om/designmanual/profilelementer/fargepalett/
+  uio_palette3 = ["#FFEBD9", "#DC4234", "#000000"] # UiO whitered-ish, PMS-485, black. Taken from: https://www.uio.no/om/designmanual/profilelementer/fargepalett/
+  #uio_palette4 = ["#F4F6FF", "#FB6666", "#DC4234"] # UiO white-ish, UiO red secondary color, PMS-485. Taken from: https://www.uio.no/om/designmanual/profilelementer/fargepalett/
+  #uio_palette5 = ["#ed9f98", "#dc4234", "#731c14"] # Bright, PMS-485, Dark. Taken from: https://www.colorhexa.com/dc4234
+  uio_palette6 = ["#86A4F7", "#2EC483", "#FEA11B", "#FB6666"] # UiOs secondary colors blue->red.
+  #uio_palette7 = ["#FB6666", "#FEA11B", "#2EC483", "#86A4F7"] # UiOs secondary colors red->blue.
+  uio_palette8 = ["#FEA11B", "#DC4234", "#000000"] # UiO orange, PMS-485, black. Taken from: https://www.uio.no/om/designmanual/profilelementer/fargepalett/
+  uio_palette9 = ["#86A4F7", "#DC4234", "#000000"] # UiO blue, PMS-485, black. Taken from: https://www.uio.no/om/designmanual/profilelementer/fargepalett/
+  uio_palette10 = ["#FFFEA7","#FEA11B", "#DC4234", "#000000"] # UiO yellow, UiO orange, PMS-485, black. Taken from: https://www.uio.no/om/designmanual/profilelementer/fargepalett/
+  #uio_cmp1 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette1) # Creates a colormap from the palette
+  #uio_cmp2 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette2) # Creates a colormap from the palette
+  uio_cmp3 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette3) # Creates a colormap from the palette
+  #uio_cmp4 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette4) # Creates a colormap from the palette
+  #uio_cmp5 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette5) # Creates a colormap from the palette
+  uio_cmp6 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette6) # Creates a colormap from the palette
+  #uio_cmp7 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette7) # Creates a colormap from the palette
+  uio_cmp8 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette8) # Creates a colormap from the palette
+  uio_cmp9 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette9) # Creates a colormap from the palette
+  uio_cmp10 = LinearSegmentedColormap.from_list("UiO colormap", uio_palette10) # Creates a colormap from the palette
+
+  plot_examples([uio_cmp3, uio_cmp6, uio_cmp8, uio_cmp9, uio_cmp10])
+
+
+  #colors = uio_cmp(np.linspace(0, 1, len(files))) # Creates a set of colors based on amount of files
+
+OLD!!! QCM NH4F Pulses:
+    CatPulseDryA = np.array([524.4241211, 495.3713006, 452.1037229, 380.781274, 91.22211373, 19.4733536, -6.171989864])
+    CatPulseDryB = np.array([498.1816573, 468.1258412, 429.4236845, 386.2592844, 197.779942, 47.99047734, -2.262887939])
+    AnPulseDryA = np.array([374.6187819, 377.5993986, 366.8473883, 346.2811465, 296.1222544, 211.9130628, 12.64005287])
+    AnPulseDryB = np.array([412.5889537, 394.3631553, 371.1314657, 346.4726152, 291.142267, 208.3372887, 12.20923209])
+    CatPulseUntreatedA = np.array([492.0137037, 473.2965874, 439.592923, 382.878019, 100.2186494, 17.4600481, -10.52849169])
+    CatPulseUntreatedB = np.array([488.9223793, 465.0354199, 431.1676448, 394.8075931, 221.9934485, 52.89958987, -5.139101136])
+    AnPulseUntreatedA = np.array([394.5647127, 395.3157594, 378.0121309, 356.6506066, 301.9004506, 210.6751727, 12.15492472])
+    AnPulseUntreatedB = np.array([436.0002497, 414.2987374, 385.3383521, 358.1103676, 298.3327029, 209.8632259, 13.69788719])
+    time = [8, 5, 3, 2, 1, 0.5, 0]
+
+    # All sensors Cation
+    colors = uio_cmp(np.linspace(0, 1, 4)) # From start to end of colormap with n points ALL SENSORS
+    plt.plot(time, CatPulseDryA, color=colors[0], marker=markers[0], label="Treated NH$_4$F, Sensor A")
+    plt.plot(time, CatPulseDryB, color=colors[1], marker=markers[1], label="Treated NH$_4$F, Sensor B")
+    plt.plot(time, CatPulseUntreatedA, color=colors[2], marker=markers[2], label="Untreated NH$_4$F, Sensor A")
+    plt.plot(time, CatPulseUntreatedB, color=colors[3], marker=markers[3], label="Untreated NH$_4$F, Sensor B")
+    plt.xlabel("Pulse time [s]")
+    plt.ylabel("QCM response [ng/cycle]")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.legend()
+    plt.show()
+
+    # Avg of sensors Cation
+    colors = uio_cmp(np.linspace(0, 1, 2)) # From start to end of colormap with n points AVG OF SENSORS
+    plt.plot(time, (CatPulseDryA+CatPulseDryB)/2, color=colors[0], marker=markers[0], label="Treated NH$_4$F")
+    plt.plot(time, (CatPulseUntreatedA+CatPulseUntreatedB)/2, color=colors[1], marker=markers[1], label="Untreated NH$_4$F")
+    plt.xlabel("Pulse time [s]")
+    plt.ylabel("QCM response [ng/cycle]")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.legend()
+    plt.show()
+
+    # All sensors Anion
+    colors = uio_cmp(np.linspace(0, 1, 4)) # From start to end of colormap with n points ALL SENSORS
+    plt.plot(time, AnPulseDryA, color=colors[0], marker=markers[0], label="Treated NH$_4$F, Sensor A")
+    plt.plot(time, AnPulseDryB, color=colors[1], marker=markers[1], label="Treated NH$_4$F, Sensor B")
+    plt.plot(time, AnPulseUntreatedA, color=colors[2], marker=markers[2], label="Untreated NH$_4$F, Sensor A")
+    plt.plot(time, AnPulseUntreatedB, color=colors[3], marker=markers[3], label="Untreated NH$_4$F, Sensor B")
+    plt.xlabel("Pulse time [s]")
+    plt.ylabel("QCM response [ng/cycle]")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.legend()
+    plt.show()
+
+    # Avg of sensors Anion
+    colors = uio_cmp(np.linspace(0, 1, 2)) # From start to end of colormap with n points AVG OF SENSORS
+    plt.plot(time, (AnPulseDryA+AnPulseDryB)/2, color=colors[0], marker=markers[0], label="Treated NH$_4$F")
+    plt.plot(time, (AnPulseUntreatedA+AnPulseUntreatedB)/2, color=colors[1], marker=markers[1], label="Untreated NH$_4$F")
+    plt.xlabel("Pulse time [s]")
+    plt.ylabel("QCM response [ng/cycle]")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.legend()
+    plt.show()
+
+OLD!!! Pl of QzLn:
+    PLfiles = ["ETNL1_Qz_PL_365nm_435LPF_500ms_10avg_Subt2__1__16-02-11-754.txt",
+    "ETNL2_Qz-AlCl3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-04-31-740.txt",
+    "ETNL7_Qz-Alacac3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-13-36-726.txt",
+    "ETNL3_Qz-YCl3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-06-16-744.txt",
+    "ETNL5_Qz-Ythd3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-09-46-736.txt",
+    "ETNL4_Qz-Ndthd3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-08-01-740.txt",
+    "ETNL6_Qz-Ybthd3_PL_365nm_435LPF_500ms_10avg_Subt2__0__16-11-36-731.txt"]
+    PLlabels = ["Qz",
+    "Qz + AlCl$_3$",
+    "Qz + Al(acac)$_3$",
+    "Qz + YCl$_3$",
+    "Qz + Y(thd)$_3$",
+    "Qz + Nd(thd)$_3$",
+    "Qz + Yb(thd)$_3$"]
+    colors = uio_cmp(np.linspace(0, 1, len(PLfiles)))
+    xdata = []
+    ydata = []
+
+    for i, file in enumerate(PLfiles):
+        x, y = (read_OpticsLab("../data/Optics Lab/" + file))
+        x = np.array(x) # Converts to array
+        y = np.array(y) # Converts to array
+        for i, val in enumerate(y):
+            if val < 0: # If negative values are found set them to zero
+                y[i] = 0
+        xdata.append(x)
+        ydata.append(y)
+
+    ymax = np.amax(ydata[1]) # Maximum value of AlCl3 fluorecence (since that was most intense)
+    for i, val in enumerate(ydata):
+        ydata[i] = val/ymax # Sets y-data to relative intensity of AlCl3
+        plt.plot(xdata[i][246:1689], ydata[i][246:1689], color=colors[i], marker=markers[i], markevery=50+i*10, label=PLlabels[i])
+
+    plt.xlabel("Wavelength [nm]")
+    plt.ylabel("Relative Intensity [a.u.]")
+    plt.legend()
+    plt.show() # Shows the figure
+
+OLD!!! Thickness of YbF3 vs. Tdep:
+    dataIN  = [54.50, 34.56, 23.30, 21.84, 27.81, 40.66]
+    dataMID = [51.00, 31.69, 21.57, 18.39, 18.26, 35.08]
+    dataOUT = [55.05, 27.38, 22.74, 16.41, 18.23, 27.08]
+    temp =  [175, 200, 225, 250, 275, 300]
+    XRRtemp = [175, 225, 300]
+    XRR = [54.458098, 17.556739, 26.345710]
+    colors = uio_cmp(np.linspace(0, 1, 4))
+
+    plt.plot(temp, dataIN,  color=colors[0],  marker=markers[0], label= "Front")
+    plt.plot(temp, dataMID, color=colors[1],  marker=markers[1], label= "Middle")
+    plt.plot(temp, dataOUT, color=colors[2],  marker=markers[2], label= "Back")
+    plt.plot(XRRtemp, XRR, color=colors[3],  marker=markers[3], label= "XRR")
+
+    plt.xlabel("Deposition temperature [°C]")
+    plt.ylabel("Thickness [nm]")
+    plt.legend()
+    plt.show() # Shows the figure
